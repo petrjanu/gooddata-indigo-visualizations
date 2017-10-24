@@ -275,13 +275,13 @@ describe('Utils', () => {
 
     describe('getFooterHeight', () => {
         it('should return proper height', () => {
-            const aggregations = [1, 2];
-            expect(getFooterHeight(aggregations)).toEqual(60);
+            const totals = [1, 2];
+            expect(getFooterHeight(totals)).toEqual(60);
         });
 
-        it('should return zero height when no aggregations are given', () => {
-            const aggregations = [];
-            expect(getFooterHeight(aggregations)).toEqual(0);
+        it('should return zero height when no totals are given', () => {
+            const totals = [];
+            expect(getFooterHeight(totals)).toEqual(0);
         });
     });
 
@@ -344,16 +344,18 @@ describe('Utils', () => {
     describe('isHeaderAtEdgePosition', () => {
         const stickyHeaderOffset = 0;
         const hasHiddenRows = true;
-        const aggregations = [];
+        const totals = [];
 
         it('should return true if header is at its edge position', () => {
             const tableBottom = 50;
-            expect(isHeaderAtEdgePosition(stickyHeaderOffset, hasHiddenRows, aggregations, tableBottom)).toEqual(true);
+            expect(isHeaderAtEdgePosition(stickyHeaderOffset, hasHiddenRows, totals, tableBottom, false))
+                .toEqual(true);
         });
 
         it('should return false if header is not at its edge position', () => {
             const tableBottom = 500;
-            expect(isHeaderAtEdgePosition(stickyHeaderOffset, hasHiddenRows, aggregations, tableBottom)).toEqual(false);
+            expect(isHeaderAtEdgePosition(stickyHeaderOffset, hasHiddenRows, totals, tableBottom, false))
+                .toEqual(false);
         });
     });
 
@@ -361,11 +363,13 @@ describe('Utils', () => {
         it('should return proper header positions', () => {
             const stickyHeaderOffset = 0;
             let hasHiddenRows = true;
-            let aggregations = [];
-            let tableHeight = 500;
-            let tableTop = 50;
+            let totals = [];
+            let tableDimensions = {
+                height: 500,
+                top: 50
+            };
 
-            expect(getHeaderPositions(stickyHeaderOffset, hasHiddenRows, aggregations, tableHeight, tableTop))
+            expect(getHeaderPositions(stickyHeaderOffset, hasHiddenRows, totals, false, tableDimensions))
                 .toEqual({
                     absoluteTop: -50,
                     defaultTop: 0,
@@ -374,11 +378,13 @@ describe('Utils', () => {
                 });
 
             hasHiddenRows = true;
-            aggregations = [1, 2, 3];
-            tableHeight = 500;
-            tableTop = 50;
+            totals = [1, 2, 3];
+            tableDimensions = {
+                height: 500,
+                top: 50
+            };
 
-            expect(getHeaderPositions(stickyHeaderOffset, hasHiddenRows, aggregations, tableHeight, tableTop))
+            expect(getHeaderPositions(stickyHeaderOffset, hasHiddenRows, totals, false, tableDimensions))
                 .toEqual({
                     absoluteTop: -50,
                     defaultTop: 0,
@@ -387,11 +393,9 @@ describe('Utils', () => {
                 });
 
             hasHiddenRows = false;
-            aggregations = [1, 2, 3];
-            tableHeight = 500;
-            tableTop = 50;
+            totals = [1, 2, 3];
 
-            expect(getHeaderPositions(stickyHeaderOffset, hasHiddenRows, aggregations, tableHeight, tableTop))
+            expect(getHeaderPositions(stickyHeaderOffset, hasHiddenRows, totals, false, tableDimensions))
                 .toEqual({
                     absoluteTop: -50,
                     defaultTop: 0,
@@ -400,11 +404,13 @@ describe('Utils', () => {
                 });
 
             hasHiddenRows = true;
-            aggregations = [];
-            tableHeight = 200;
-            tableTop = 100;
+            totals = [];
+            tableDimensions = {
+                height: 200,
+                top: 100
+            };
 
-            expect(getHeaderPositions(stickyHeaderOffset, hasHiddenRows, aggregations, tableHeight, tableTop))
+            expect(getHeaderPositions(stickyHeaderOffset, hasHiddenRows, totals, false, tableDimensions))
                 .toEqual({
                     absoluteTop: -100,
                     defaultTop: 0,
@@ -413,11 +419,9 @@ describe('Utils', () => {
                 });
 
             hasHiddenRows = false;
-            aggregations = [];
-            tableHeight = 200;
-            tableTop = 100;
+            totals = [];
 
-            expect(getHeaderPositions(stickyHeaderOffset, hasHiddenRows, aggregations, tableHeight, tableTop))
+            expect(getHeaderPositions(stickyHeaderOffset, hasHiddenRows, totals, false, tableDimensions))
                 .toEqual({
                     absoluteTop: -100,
                     defaultTop: 0,
@@ -461,33 +465,40 @@ describe('Utils', () => {
     });
 
     describe('isFooterAtEdgePosition', () => {
-        const aggregations = [1, 2, 3];
+        const totals = [1, 2, 3];
         const hasHiddenRows = false;
-        const tableHeight = 500;
         const windowHeight = 500;
 
         it('should return true if footer is at its edge position', () => {
-            const tableBottom = 1000;
-            expect(isFooterAtEdgePosition(hasHiddenRows, aggregations, tableHeight, tableBottom, windowHeight))
+            const tableDimensions = {
+                height: 500,
+                bottom: 1000
+            };
+            expect(isFooterAtEdgePosition(hasHiddenRows, totals, windowHeight, false, tableDimensions))
                 .toEqual(true);
         });
 
         it('should return false if footer is not at its edge position', () => {
-            const tableBottom = 100;
-            expect(isFooterAtEdgePosition(hasHiddenRows, aggregations, tableHeight, tableBottom, windowHeight))
+            const tableDimensions = {
+                height: 500,
+                bottom: 100
+            };
+            expect(isFooterAtEdgePosition(hasHiddenRows, totals, windowHeight, false, tableDimensions))
                 .toEqual(false);
         });
     });
 
     describe('getFooterPositions', () => {
         it('should return proper footer positions', () => {
-            const aggregations = [1, 2, 3];
+            const totals = [1, 2, 3];
             let hasHiddenRows = true;
-            let tableHeight = 300;
-            let tableBottom = 500;
+            let tableDimensions = {
+                height: 300,
+                bottom: 500
+            };
             let windowHeight = 400;
 
-            expect(getFooterPositions(hasHiddenRows, aggregations, tableHeight, tableBottom, windowHeight))
+            expect(getFooterPositions(hasHiddenRows, totals, windowHeight, false, tableDimensions))
                 .toEqual({
                     absoluteTop: -100,
                     defaultTop: -15,
@@ -495,11 +506,13 @@ describe('Utils', () => {
                     fixedTop: 100
                 });
 
-            tableHeight = 500;
-            tableBottom = 1000;
+            tableDimensions = {
+                height: 500,
+                bottom: 1000
+            };
             windowHeight = 800;
 
-            expect(getFooterPositions(hasHiddenRows, aggregations, tableHeight, tableBottom, windowHeight))
+            expect(getFooterPositions(hasHiddenRows, totals, windowHeight, false, tableDimensions))
                 .toEqual({
                     absoluteTop: -200,
                     defaultTop: -15,
@@ -508,11 +521,13 @@ describe('Utils', () => {
                 });
 
             hasHiddenRows = false;
-            tableHeight = 300;
-            tableBottom = 100;
+            tableDimensions = {
+                height: 300,
+                bottom: 100
+            };
             windowHeight = 500;
 
-            expect(getFooterPositions(hasHiddenRows, aggregations, tableHeight, tableBottom, windowHeight))
+            expect(getFooterPositions(hasHiddenRows, totals, windowHeight, false, tableDimensions))
                 .toEqual({
                     absoluteTop: 400,
                     defaultTop: -0,

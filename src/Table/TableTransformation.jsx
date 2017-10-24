@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { pick } from 'lodash';
+import { noop, pick } from 'lodash';
 
 import Table from './Table';
 import { getSortInfo, parseMetricValues } from './utils';
@@ -13,7 +13,9 @@ export function renderTable(props) {
 export default class TableTransformation extends Component {
     static propTypes = {
         afm: PropTypes.object,
-        aggregations: PropTypes.array,
+        totals: PropTypes.array,
+        totalsEditAllowed: PropTypes.bool,
+        onTotalsEdit: PropTypes.func,
         config: PropTypes.object,
         data: PropTypes.shape({
             headers: PropTypes.arrayOf(PropTypes.object),
@@ -30,13 +32,15 @@ export default class TableTransformation extends Component {
 
     static defaultProps = {
         afm: {},
-        aggregations: [],
         config: {},
         drillableItems: [],
-        onFiredDrillEvent: () => {},
+        onFiredDrillEvent: noop,
+        totals: [],
+        totalsEditAllowed: false,
+        onTotalsEdit: noop,
         tableRenderer: renderTable,
-        afterRender: () => {},
-        onSortChange: () => {},
+        afterRender: noop,
+        onSortChange: noop,
         height: undefined,
         width: undefined
     };
@@ -51,14 +55,18 @@ export default class TableTransformation extends Component {
             afm,
             drillableItems,
             onFiredDrillEvent,
-            aggregations
+            totals,
+            totalsEditAllowed,
+            onTotalsEdit
         } = this.props;
         const { sortBy, sortDir } = getSortInfo(config);
 
         const rows = parseMetricValues(headers, rawData);
 
         const tableProps = {
-            aggregations,
+            totals,
+            totalsEditAllowed,
+            onTotalsEdit,
             afm,
             rows,
             drillableItems,

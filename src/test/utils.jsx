@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { IntlProvider } from 'react-intl';
 
-import translations from '../translations/en';
+import translations from '../../mock-translations/en';
 
 const defaultIntlOptions = {
     locale: 'en',
@@ -18,4 +18,10 @@ export function withIntl(WrappedComponent, intlOptions = defaultIntlOptions) {
             );
         }
     };
+}
+
+export function createIntlMock() {
+    const intlProvider = new IntlProvider({ locale: 'en-US', messages: translations }, {});
+    const { intl } = intlProvider.getChildContext();
+    return intl;
 }

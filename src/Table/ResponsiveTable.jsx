@@ -11,7 +11,7 @@ const isTouchDevice = 'ontouchstart' in document.documentElement;
 
 export default class ResponsiveTable extends Component {
     static propTypes = {
-        aggregations: PropTypes.array,
+        totals: PropTypes.array,
         rowsPerPage: PropTypes.number.isRequired,
         rows: PropTypes.array.isRequired,
         page: PropTypes.number,
@@ -20,7 +20,7 @@ export default class ResponsiveTable extends Component {
     };
 
     static defaultProps = {
-        aggregations: [],
+        totals: [],
         onMore: noop,
         onLess: noop,
         page: 1
@@ -66,10 +66,10 @@ export default class ResponsiveTable extends Component {
     }
 
     getContainerMaxHeight() {
-        const { rows, aggregations } = this.props;
+        const { rows, totals } = this.props;
 
         return (rows.length * DEFAULT_ROW_HEIGHT) +
-            (aggregations.length * DEFAULT_FOOTER_ROW_HEIGHT) +
+            (totals.length * DEFAULT_FOOTER_ROW_HEIGHT) +
             DEFAULT_HEADER_HEIGHT + HEIGHT_PADDING;
     }
 

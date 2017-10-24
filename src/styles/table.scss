@@ -1,8 +1,10 @@
 $gdc-goodstrap-basepath: '~@gooddata/goodstrap/lib/';
 
-@import '~fixed-data-table-2/dist/fixed-data-table.css';
-@import '~@gooddata/goodstrap/lib/core/styles/themes/indigo/colors';
-@import '~@gooddata/goodstrap/lib/core/styles/themes/indigo/IndigoFont';
+@import '~@gooddata/goodstrap/lib/core/styles/themes/indigo/main';
+@import '~@gooddata/goodstrap/lib/core/styles/themes/indigo/Overlay';
+@import '~@gooddata/goodstrap/lib/Button/styles/themes/indigo/Button';
+@import '~@gooddata/goodstrap/lib/List/styles/themes/indigo/List';
+@import '~@gooddata/goodstrap/lib/Dropdown/styles/themes/indigo/Dropdown';
 @import 'variables';
 
 .indigo-table-component {
@@ -91,6 +93,10 @@ $gdc-goodstrap-basepath: '~@gooddata/goodstrap/lib/';
 
     .public_fixedDataTableRow_highlighted .fixedDataTableCellLayout_main {
         background-color: #fff;
+    }
+
+    .public_fixedDataTable_bodyRow .indigo-table-cell-highlight {
+        background: transparentize($gd-color-highlight, 0.9);
     }
 
     .fixedDataTableCellLayout_main,
@@ -248,12 +254,182 @@ $gdc-goodstrap-basepath: '~@gooddata/goodstrap/lib/';
         }
 
         .indigo-table-footer-cell {
+            position: relative;
             box-sizing: border-box;
             padding: 0 8px;
             border-bottom: 1px solid $footer-border;
             font-size: 12px;
             line-height: 30px;
             text-transform: none;
+        }
+
+        .indigo-totals-add-cell {
+            border-bottom: none;
+
+            .indigo-totals-add-row-button-wrap-a {
+                position: absolute;
+                top: 3px;
+                right: 0;
+                left: 0;
+                display: none;
+                padding: 6px 6px 12px;
+                border-radius: 4px;
+            }
+
+            .indigo-totals-add-row-button-wrap-a.hide {
+                display: none;
+            }
+
+            .indigo-totals-add-row-button-wrap-b {
+                position: relative;
+                display: block;
+                width: 20px;
+                height: 20px;
+                margin: 0 auto;
+                line-height: 20px;
+            }
+
+            .indigo-totals-add-row-button-wrap-c {
+                margin: -5px;
+            }
+        }
+
+        .indigo-table-footer-cell-highlight {
+            .indigo-totals-add-row-button-wrap-a {
+                display: block;
+                background: transparentize($gd-color-highlight, 0.9);
+            }
+        }
+    }
+}
+
+.indigo-totals-select-type-list {
+    &::before {
+        content: '';
+        position: absolute;
+        z-index: 1;
+        bottom: -8px;
+        left: 50%;
+        display: block;
+        width: 16px;
+        height: 16px;
+        margin: 0 0 0 -8px;
+        box-shadow: 1px 1px 8px 0 rgba(0, 0, 0, 0.15);
+        background: #fff;
+        transform: rotate(45deg);
+    }
+
+    &.arrow-align-right::before {
+        right: 16px;
+        left: auto;
+        margin: 0;
+    }
+
+    &::after {
+        content: '';
+        position: absolute;
+        z-index: 2;
+        right: 10px;
+        bottom: 0;
+        left: 10px;
+        display: block;
+        height: 16px;
+        background: #fff;
+    }
+
+    & > div {
+        position: relative;
+        z-index: 3;
+    }
+
+    .indigo-totals-select-type-header {
+        padding: 2px 10px 0;
+    }
+
+    .indigo-totals-select-type-item-disabled {
+        color: $gd-color-disabled;
+        background: none;
+        cursor: default;
+    }
+}
+
+.indigo-totals-remove {
+    position: absolute;
+    z-index: 100;
+    right: 0;
+    bottom: 50px;
+    width: 100%;
+    padding-bottom: 2px;
+    pointer-events: none;
+
+    .indigo-totals-remove-row {
+        position: relative;
+        width: 100%;
+        height: 30px;
+        pointer-events: none;
+
+        &:hover,
+        &.indigo-totals-remove-row-highlight {
+            .indigo-totals-row-remove-button {
+                visibility: visible;
+            }
+
+            &::before {
+                content: '';
+                position: absolute;
+                z-index: 1;
+                top: -1px;
+                right: 0;
+                left: 0;
+                display: block;
+                height: 1px;
+                background: #fff;
+            }
+
+            &::after {
+                content: '';
+                position: absolute;
+                z-index: 2;
+                top: -1px;
+                right: 0;
+                bottom: -1px;
+                left: 0;
+                display: block;
+                border-radius: 4px;
+                border: 2px solid $gd-color-highlight;
+            }
+        }
+
+        .indigo-totals-row-remove-button {
+            position: absolute;
+            z-index: 3;
+            top: -7px;
+            right: -6px;
+            visibility: hidden;
+            overflow: hidden;
+            width: 15px;
+            height: 15px;
+            padding: 0;
+            border: 2px solid $gd-color-highlight;
+            border-radius: 50%;
+            background: $gd-color-highlight;
+            pointer-events: auto;
+            cursor: pointer;
+
+            &:hover {
+                border-color: $gd-color-negative;
+                background: $gd-color-negative;
+            }
+
+            &::before {
+                content: '\E639';
+                display: block;
+                margin: -2px;
+                font-size: 16px;
+                font-family: 'Indigo';
+                line-height: 16px;
+                color: #fff;
+            }
         }
     }
 }

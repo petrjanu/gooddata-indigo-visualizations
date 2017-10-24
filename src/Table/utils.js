@@ -9,7 +9,10 @@ import {
 
 import { parseValue, getMeasureHeader, getAttributeHeader } from '../utils/common';
 
-import { DEFAULT_ROW_HEIGHT, DEFAULT_HEADER_HEIGHT, DEFAULT_FOOTER_ROW_HEIGHT } from './TableVisualization';
+import {
+    DEFAULT_ROW_HEIGHT, DEFAULT_HEADER_HEIGHT, DEFAULT_FOOTER_ROW_HEIGHT,
+    TOTALS_ADD_ROW_HEIGHT
+} from './TableVisualization';
 
 import { ASC, DESC } from './Sort';
 
@@ -249,8 +252,8 @@ export function updatePosition(element, isDefaultPosition, isEdgePosition, posit
     return setPosition(element, 'fixed', fixedTop, true);
 }
 
-export function getFooterHeight(aggregations) {
-    return aggregations.length * DEFAULT_FOOTER_ROW_HEIGHT;
+export function getFooterHeight(totals, totalsEditAllowed) {
+    return (totals.length * DEFAULT_FOOTER_ROW_HEIGHT) + (totalsEditAllowed ? TOTALS_ADD_ROW_HEIGHT : 0);
 }
 
 export function getHiddenRowsOffset(hasHiddenRows) {
@@ -265,8 +268,8 @@ export function isHeaderAtDefaultPosition(stickyHeaderOffset, tableTop) {
     return tableTop >= stickyHeaderOffset;
 }
 
-export function isHeaderAtEdgePosition(stickyHeaderOffset, hasHiddenRows, aggregations, tableBottom) {
-    const footerHeight = getFooterHeight(aggregations);
+export function isHeaderAtEdgePosition(stickyHeaderOffset, hasHiddenRows, totals, tableBottom, totalsEditAllowed) {
+    const footerHeight = getFooterHeight(totals, totalsEditAllowed);
     const hiddenRowsOffset = getHiddenRowsOffset(hasHiddenRows);
     const headerOffset = getHeaderOffset(hasHiddenRows);
 
@@ -274,8 +277,10 @@ export function isHeaderAtEdgePosition(stickyHeaderOffset, hasHiddenRows, aggreg
         tableBottom < (stickyHeaderOffset + headerOffset + footerHeight + hiddenRowsOffset);
 }
 
-export function getHeaderPositions(stickyHeaderOffset, hasHiddenRows, aggregations, tableHeight, tableTop) {
-    const footerHeight = getFooterHeight(aggregations);
+export function getHeaderPositions(stickyHeaderOffset, hasHiddenRows, totals, totalsEditAllowed, tableDimensions) {
+    const { height: tableHeight, top: tableTop } = tableDimensions;
+
+    const footerHeight = getFooterHeight(totals, totalsEditAllowed);
     const hiddenRowsOffset = getHiddenRowsOffset(hasHiddenRows);
     const headerOffset = getHeaderOffset(hasHiddenRows);
 
@@ -293,8 +298,10 @@ export function isFooterAtDefaultPosition(hasHiddenRows, tableBottom, windowHeig
     return (tableBottom - hiddenRowsOffset) <= windowHeight;
 }
 
-export function isFooterAtEdgePosition(hasHiddenRows, aggregations, tableHeight, tableBottom, windowHeight) {
-    const footerHeight = getFooterHeight(aggregations);
+export function isFooterAtEdgePosition(hasHiddenRows, totals, windowHeight, totalsEditAllowed, tableDimensions) {
+    const { height: tableHeight, bottom: tableBottom } = tableDimensions;
+
+    const footerHeight = getFooterHeight(totals, totalsEditAllowed);
     const headerOffset = getHeaderOffset(hasHiddenRows);
 
     const footerHeightTranslate = tableHeight - footerHeight;
@@ -302,8 +309,10 @@ export function isFooterAtEdgePosition(hasHiddenRows, aggregations, tableHeight,
     return (tableBottom + headerOffset) >= (windowHeight + footerHeightTranslate);
 }
 
-export function getFooterPositions(hasHiddenRows, aggregations, tableHeight, tableBottom, windowHeight) {
-    const footerHeight = getFooterHeight(aggregations);
+export function getFooterPositions(hasHiddenRows, totals, windowHeight, totalsEditAllowed, tableDimensions) {
+    const { height: tableHeight, bottom: tableBottom } = tableDimensions;
+
+    const footerHeight = getFooterHeight(totals, totalsEditAllowed);
     const hiddenRowsOffset = getHiddenRowsOffset(hasHiddenRows);
     const headerOffset = getHeaderOffset(hasHiddenRows);
 

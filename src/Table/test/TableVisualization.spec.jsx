@@ -6,6 +6,10 @@ import TableVisualization, { DEFAULT_FOOTER_ROW_HEIGHT } from '../TableVisualiza
 import { ASC, DESC } from '../Sort';
 import { withIntl } from '../../test/utils';
 
+function getInstanceFromWraper(wrapper, component) {
+    return wrapper.find(component).childAt(0).instance();
+}
+
 const FIXTURE = {
     headers: [
         {
@@ -52,15 +56,21 @@ const FIXTURE = {
             }
         ]
     },
-    aggregations: [
+    totals: [
         {
-            name: 'Sum',
+            type: 'sum',
+            alias: 'Sum',
+            outputMeasureIndexes: [],
             values: [null, null, 125]
         }, {
-            name: 'Avg',
+            type: 'avg',
+            alias: 'Avg',
+            outputMeasureIndexes: [],
             values: [null, 45.98, 12.32]
         }, {
-            name: 'Rollup',
+            type: 'nat',
+            alias: 'Rollup',
+            outputMeasureIndexes: [],
             values: [null, 12.99, 1.008]
         }
     ]
@@ -213,15 +223,15 @@ describe('Table', () => {
     });
 
     describe('table footer', () => {
-        it('should not render any footer cells when no aggregations are provided', () => {
+        it('should not render any footer cells when no totals are provided', () => {
             const wrapper = renderTable();
 
             expect(wrapper.find('.indigo-table-footer-cell').length).toEqual(0);
         });
 
-        it('should not render any footer cells when aggregations are provided but data contains only metrics', () => {
+        it('should not render any footer cells when totals are provided but data contains only metrics', () => {
             const wrapper = renderTable({
-                aggregations: FIXTURE.aggregations,
+                totals: FIXTURE.totals,
                 headers: FIXTURE.onlyMetricHeaders,
                 rawData: FIXTURE.onlyMetricRawData
             });
@@ -229,38 +239,38 @@ describe('Table', () => {
             expect(wrapper.find('.indigo-table-footer-cell').length).toEqual(0);
         });
 
-        it('should render footer cells when aggregations are provided', () => {
-            const wrapper = renderTable({ aggregations: FIXTURE.aggregations });
+        it('should render footer cells when totals are provided', () => {
+            const wrapper = renderTable({ totals: FIXTURE.totals });
 
             expect(wrapper.find('.indigo-table-footer-cell').length).toEqual(9);
         });
 
-        it('should reset footer when component is updated with no aggregations', () => {
-            const wrapper = renderTable({ aggregations: FIXTURE.aggregations });
-            const footer = wrapper.find(TableVisualization).instance().footer;
+        it('should reset footer when component is updated with no totals', () => {
+            const wrapper = renderTable({ totals: FIXTURE.totals });
+            const footer = getInstanceFromWraper(wrapper, TableVisualization).footer;
 
             expect(footer.classList.contains('table-footer')).toBeTruthy();
 
-            wrapper.setProps({ aggregations: [] });
+            wrapper.setProps({ totals: [] });
 
             expect(footer.classList.contains('table-footer')).toBeFalsy();
         });
 
-        it('should update footer height when component is updated with different aggregations', () => {
-            const wrapper = renderTable({ aggregations: FIXTURE.aggregations });
-            const footer = wrapper.find(TableVisualization).instance().footer;
+        it('should update footer height when component is updated with different totals', () => {
+            const wrapper = renderTable({ totals: FIXTURE.totals });
+            const footer = getInstanceFromWraper(wrapper, TableVisualization).footer;
 
-            const heightBefore = FIXTURE.aggregations.length * DEFAULT_FOOTER_ROW_HEIGHT;
+            const heightBefore = FIXTURE.totals.length * DEFAULT_FOOTER_ROW_HEIGHT;
 
             expect(footer.style.height).toEqual(`${heightBefore}px`);
 
-            const aggregationsAfter = [...FIXTURE.aggregations, {
+            const totalsAfter = [...FIXTURE.totals, {
                 name: 'Other',
                 values: [1, 2, 3]
             }];
-            const heightAfter = aggregationsAfter.length * DEFAULT_FOOTER_ROW_HEIGHT;
+            const heightAfter = totalsAfter.length * DEFAULT_FOOTER_ROW_HEIGHT;
 
-            wrapper.setProps({ aggregations: aggregationsAfter });
+            wrapper.setProps({ totals: totalsAfter });
 
             expect(footer.style.height).toEqual(`${heightAfter}px`);
         });

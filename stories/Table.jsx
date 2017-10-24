@@ -31,10 +31,11 @@ function generateData(columns, rows) {
     };
 }
 
-function generateAggregations(columns, aggregationsTypes) {
-    return aggregationsTypes.map((type, typeIndex) => {
+function generateTotals(columns, totalsTypes) {
+    return totalsTypes.map((type, typeIndex) => {
         return {
-            name: type,
+            type,
+            alias: `My ${type}`,
             values: range(columns).map((column, columnIndex) => typeIndex + columnIndex)
         };
     });
@@ -43,53 +44,61 @@ function generateAggregations(columns, aggregationsTypes) {
 storiesOf('Table')
     .add('Fixed dimensions', () => (
         screenshotWrap(
-            <div>
-                <TableTransformation
-                    config={TestConfig.table}
-                    data={TestData.stackedBar}
-                    onSortChange={action('Sort changed')}
-                    width={600}
-                    height={400}
-                />
-            </div>
+            <IntlWrapper>
+                <div>
+                    <TableTransformation
+                        config={TestConfig.table}
+                        data={TestData.stackedBar}
+                        onSortChange={action('Sort changed')}
+                        width={600}
+                        height={400}
+                    />
+                </div>
+            </IntlWrapper>
         )
     ))
     .add('Fill parent', () => (
         screenshotWrap(
-            <div style={{ width: '100%', height: 500 }}>
-                <TableTransformation
-                    config={TestConfig.table}
-                    data={TestData.stackedBar}
-                    onSortChange={action('Sort changed')}
-                />
-            </div>
+            <IntlWrapper>
+                <div style={{ width: '100%', height: 500 }}>
+                    <TableTransformation
+                        config={TestConfig.table}
+                        data={TestData.stackedBar}
+                        onSortChange={action('Sort changed')}
+                    />
+                </div>
+            </IntlWrapper>
         )
     ))
     .add('Sticky header', () => (
         screenshotWrap(
-            <div style={{ width: '100%', height: 600 }}>
-                <TableTransformation
-                    config={{
-                        ...TestConfig.table,
-                        stickyHeader: 0
-                    }}
-                    data={TestData.stackedBar}
-                    height={400}
-                />
-                <div style={{ height: 800 }} />
-            </div>
+            <IntlWrapper>
+                <div style={{ width: '100%', height: 600 }}>
+                    <TableTransformation
+                        config={{
+                            ...TestConfig.table,
+                            stickyHeader: 0
+                        }}
+                        data={TestData.stackedBar}
+                        height={400}
+                    />
+                    <div style={{ height: 800 }} />
+                </div>
+            </IntlWrapper>
         )
     ))
     .add('Vertical scroll', () => (
         screenshotWrap(
-            <div>
-                <TableTransformation
-                    config={TestConfig.table}
-                    data={generateData(20, 20)}
-                    width={600}
-                    height={400}
-                />
-            </div>
+            <IntlWrapper>
+                <div>
+                    <TableTransformation
+                        config={TestConfig.table}
+                        data={generateData(20, 20)}
+                        width={600}
+                        height={400}
+                    />
+                </div>
+            </IntlWrapper>
         )
     ))
     .add('Show more/Show less', () => (
@@ -108,16 +117,26 @@ storiesOf('Table')
             </IntlWrapper>
         )
     ))
-    .add('Aggregations', () => (
+    .add('Totals view mode', () => (
         screenshotWrap(
             <IntlWrapper>
                 <TableTransformation
-                    aggregations={generateAggregations(3, ['Sum', 'Avg', 'Rollup'])}
-                    tableRenderer={props => (<ResponsiveTable {...props} />)}
-                    config={{
-                        ...TestConfig.table,
-                        stickyHeader: 0
-                    }}
+                    totals={generateTotals(3, ['sum', 'avg', 'nat'])}
+                    config={TestConfig.table}
+                    data={TestData.stackedBar}
+                    height={400}
+                />
+            </IntlWrapper>
+        )
+    ))
+    .add('Totals edit mode', () => (
+        screenshotWrap(
+            <IntlWrapper>
+                <TableTransformation
+                    totalsEditAllowed
+                    totals={generateTotals(3, ['sum', 'avg', 'nat'])}
+                    onTotalsEdit={action('Totals updated')}
+                    config={TestConfig.table}
                     data={TestData.stackedBar}
                     height={400}
                 />
