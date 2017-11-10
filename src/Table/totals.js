@@ -92,7 +92,7 @@ export function resetRowClass(parentReference, className, rowIndexToBeSet = null
 
     rows.forEach(r => r.classList.remove(className));
 
-    if (rowIndexToBeSet !== null) {
+    if (rows.length && rowIndexToBeSet !== null) {
         const row = rows[rowIndexToBeSet];
         row.classList.add(className);
     }
