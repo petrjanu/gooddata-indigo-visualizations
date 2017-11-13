@@ -17,6 +17,7 @@ import { subscribeEvents } from '../utils/common';
 import { cellClick, isDrillable } from '../utils/drilldownEventing';
 import DrillableItem from '../proptypes/DrillableItem';
 import TableTotalsDropdownItem from './TableTotalsDropdownItem';
+import TableTotalsAddButton from './TableTotalsAddButton';
 
 import {
     getNextSortDir,
@@ -671,28 +672,35 @@ export class TableVisualization extends Component {
     renderSumIcon(column, index, columnsCount) {
         const { totals, intl } = this.props;
 
-        if (!isAddingMoreTotalsEnabled(totals)) {
-            return null;
-        }
-
         const dataSource = getTotalsDatasource(totals, intl);
 
         const isFirstColumn = (index === 0);
         const isLastColumn = (index === columnsCount - 1);
-        const showSumIcon = !isFirstColumn && column.type === 'metric';
+        const showSumIcon = !isFirstColumn && column.type === 'metric' && isAddingMoreTotalsEnabled(totals);
 
         const dropdownAlignPoint =
-            isLastColumn ? { align: 'tc br', offset: { x: 24, y: -8 } } : { align: 'tc bc', offset: { x: 0, y: -8 } };
+            isLastColumn ? { align: 'tc br', offset: { x: 30, y: -3 } } : { align: 'tc bc', offset: { x: 0, y: -3 } };
 
         const dropdownBodyClassName = classNames({
             'arrow-align-right': isLastColumn
         }, 'indigo-totals-select-type-list');
 
-        const wrapperClassName = classNames({
-            hide: !showSumIcon
-        }, 'indigo-totals-add-row-button-wrap-a');
+        const wrapperEvents = {
+            onMouseEnter: () => {
+                this.toggleFooterColumnHighlight(true, index);
+            },
+            onMouseLeave: () => {
+                this.toggleFooterColumnHighlight(false, index);
+            }
+        };
 
-        const events = {
+        const addButtonProps = {
+            hidden: !showSumIcon,
+            onClick: () => {
+                this.addTotalDropdownOpened = true;
+                this.toggleBodyColumnHighlight(true, index);
+                this.toggleFooterColumnHighlight(true, index);
+            },
             onMouseEnter: () => {
                 this.toggleBodyColumnHighlight(true, index);
                 this.toggleFooterColumnHighlight(true, index);
@@ -704,36 +712,29 @@ export class TableVisualization extends Component {
         };
 
         return (
-            <div className={wrapperClassName}>
-                <div className="indigo-totals-add-row-button-wrap-b" {...events}>
-                    <div className="indigo-totals-add-row-button-wrap-c">
-                        <Dropdown
-                            onOpenStateChanged={(opened) => {
-                                this.addTotalDropdownOpened = opened;
-                                this.toggleBodyColumnHighlight(opened, index);
-                                this.toggleFooterColumnHighlight(opened, index);
-                            }}
-                            alignPoints={[dropdownAlignPoint]}
-                            button={
-                                // TODO BB-334 Add final SUM icon
-                                <Button
-                                    className="s-totals-add-row indigo-totals-add-row-button button-link button-icon-only icon-circle-plus"
-                                />
-                            }
-                            body={
-                                <DropdownBody
-                                    List={List}
-                                    dataSource={dataSource}
-                                    width={TOTALS_TYPES_DROPDOWN_WIDTH}
-                                    className={dropdownBodyClassName}
-                                    rowItem={
-                                        <TableTotalsDropdownItem onSelect={item => this.addTotalsRow(item.type)} />
-                                    }
-                                />
+            <div className="indigo-totals-add-wrapper" {...wrapperEvents}>
+                <Dropdown
+                    onOpenStateChanged={(opened) => {
+                        this.addTotalDropdownOpened = opened;
+                        this.toggleBodyColumnHighlight(opened, index);
+                        this.toggleFooterColumnHighlight(opened, index);
+                    }}
+                    alignPoints={[dropdownAlignPoint]}
+                    button={
+                        <TableTotalsAddButton {...addButtonProps} />
+                    }
+                    body={
+                        <DropdownBody
+                            List={List}
+                            dataSource={dataSource}
+                            width={TOTALS_TYPES_DROPDOWN_WIDTH}
+                            className={dropdownBodyClassName}
+                            rowItem={
+                                <TableTotalsDropdownItem onSelect={item => this.addTotalsRow(item.type)} />
                             }
                         />
-                    </div>
-                </div>
+                    }
+                />
             </div>
         );
     }
@@ -747,17 +748,8 @@ export class TableVisualization extends Component {
 
         const className = classNames('indigo-table-footer-cell', `col-${index}`, 'indigo-totals-add-cell');
 
-        const events = {
-            onMouseEnter: () => {
-                this.toggleFooterColumnHighlight(true, index);
-            },
-            onMouseLeave: () => {
-                this.toggleFooterColumnHighlight(false, index);
-            }
-        };
-
         return (
-            <div className={className} style={style} {...events}>
+            <div className={className} style={style}>
                 {this.renderSumIcon(column, index, columnsCount)}
             </div>
         );

@@ -265,40 +265,42 @@ $gdc-goodstrap-basepath: '~@gooddata/goodstrap/lib/';
 
         .indigo-totals-add-cell {
             border-bottom: none;
+        }
 
-            .indigo-totals-add-row-button-wrap-a {
-                position: absolute;
-                top: 3px;
-                right: 0;
-                left: 0;
+        .indigo-totals-add-wrapper {
+            height: 28px;
+        }
+
+        .indigo-totals-add-row-button {
+            position: absolute;
+            top: 3px;
+            right: 0;
+            left: 0;
+            display: none;
+            height: 28px;
+            padding: 4px 0 0;
+            border-radius: 4px;
+            line-height: 25px;
+            text-align: center;
+            cursor: pointer;
+
+            &.hidden {
                 display: none;
-                padding: 6px 6px 12px;
-                border-radius: 4px;
             }
 
-            .indigo-totals-add-row-button-wrap-a.hide {
-                display: none;
+            &::before {
+                font-size: 18px;
             }
 
-            .indigo-totals-add-row-button-wrap-b {
-                position: relative;
-                display: block;
-                width: 20px;
-                height: 20px;
-                margin: 0 auto;
-                line-height: 20px;
-            }
-
-            .indigo-totals-add-row-button-wrap-c {
-                margin: -5px;
+            &.highlighted {
+                color: $gd-color-highlight;
             }
         }
 
-        .indigo-table-footer-cell-highlight {
-            .indigo-totals-add-row-button-wrap-a {
-                display: block;
-                background: transparentize($gd-color-highlight, 0.9);
-            }
+        .indigo-totals-add-row-button.highlighted,
+        .indigo-table-footer-cell-highlight .indigo-totals-add-row-button {
+            display: block;
+            background: transparentize($gd-color-highlight, 0.9);
         }
     }
 }
@@ -413,8 +415,8 @@ $gdc-goodstrap-basepath: '~@gooddata/goodstrap/lib/';
             border: 2px solid $gd-color-highlight;
             border-radius: 50%;
             background: $gd-color-highlight;
-            pointer-events: auto;
             cursor: pointer;
+            pointer-events: auto;
 
             &:hover {
                 border-color: $gd-color-negative;
