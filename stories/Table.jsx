@@ -13,6 +13,10 @@ import {
     EXECUTION_RESPONSE_2A_1M,
     EXECUTION_RESULT_2A_1M
 } from '../src/Table/fixtures/2attributes1measure';
+import {
+    EXECUTION_REQUEST_2A_3M, EXECUTION_RESPONSE_2A_3M,
+    EXECUTION_RESULT_2A_3M
+} from '../src/Table/fixtures/2attributes3measures';
 
 function generateExecutionRequest() {
     // no needed exact executionRequest for these storybook usages where is no sorting
@@ -92,12 +96,12 @@ function generateExecutionResult(columns, rows) {
     };
 }
 
-function generateTotals(columns, totalsTypes) {
-    return totalsTypes.map((type, typeIndex) => {
+function generateTotals(totalsTypes) {
+    return totalsTypes.map((type) => {
         return {
             type,
             alias: `My ${type}`,
-            values: range(columns).map((column, columnIndex) => typeIndex + columnIndex)
+            outputMeasureIndexes: []
         };
     });
 }
@@ -201,24 +205,33 @@ storiesOf('Table')
                     height={400}
                     onSortChange={action('Sort changed')}
                     tableRenderer={props => (<ResponsiveTable {...props} rowsPerPage={10} />)}
-                    totals={generateTotals(3, ['sum', 'avg', 'nat'])}
+                    totals={generateTotals(['sum', 'avg', 'nat'])}
                 />
             </IntlWrapper>
         )
     ))
-    .add('Totals edit mode', () => (
-        screenshotWrap(
+    .add('Totals edit mode', () => {
+        let tableRef;
+        const totals = generateTotals(['sum', 'avg', 'nat']);
+
+        return screenshotWrap(
             <IntlWrapper>
                 <TableTransformation
-                    executionRequest={EXECUTION_REQUEST_2A_1M}
-                    executionResponse={EXECUTION_RESPONSE_2A_1M}
-                    executionResult={EXECUTION_RESULT_2A_1M}
+                    ref={(ref) => { tableRef = ref; }}
+                    executionRequest={EXECUTION_REQUEST_2A_3M}
+                    executionResponse={EXECUTION_RESPONSE_2A_3M}
+                    executionResult={EXECUTION_RESULT_2A_3M}
                     height={400}
                     onSortChange={action('Sort changed')}
                     totalsEditAllowed
-                    totals={generateTotals(3, ['sum', 'avg', 'nat'])}
-                    onTotalsEdit={action('Totals updated')}
+                    totals={totals}
+                    onTotalsEdit={(updateTotals) => {
+                        action('Totals updated')(updateTotals);
+                        while (totals.length) totals.pop();
+                        updateTotals.forEach(t => totals.push(t));
+                        tableRef.forceUpdate();
+                    }}
                 />
             </IntlWrapper>
-        )
-    ));
+        );
+    });

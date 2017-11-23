@@ -1,4 +1,4 @@
-import { remove, cloneDeep } from 'lodash';
+import { remove, cloneDeep, sortedUniq, clone, without, findIndex } from 'lodash';
 import { getFooterHeight } from '../utils/footer';
 
 export function getTotalsTypesList() {
@@ -41,7 +41,7 @@ export function getTotalsDatasource(usedTotals, intl) {
 export function getTotalFromListByType(totalItemType, intl) {
     const { alias, type } = getTotalsList(intl).find(total => total.type === totalItemType);
 
-    return { alias, type };
+    return { alias, type, outputMeasureIndexes: [] };
 }
 
 export function getOrderedTotalsWithMockedData(usedTotals) {
@@ -71,15 +71,8 @@ export function getOrderedTotalsWithMockedData(usedTotals) {
     }, []);
 }
 
-export function addTotalMeasureIndexes(totals) {
-    return totals.map(total => ({
-        ...total,
-        outputMeasureIndexes: [] // TODO: for validation purposes on backend, will be used in upcoming stories of BB-334
-    }));
-}
-
-export function toggleCellClass(parentReference, state, columnIndex, className) {
-    const cells = parentReference.querySelectorAll(`.col-${columnIndex}`);
+export function toggleCellClass(parentReference, tableColumnIndex, state, className) {
+    const cells = parentReference.querySelectorAll(`.col-${tableColumnIndex}`);
 
     cells.forEach((cell) => {
         if (state) {
@@ -152,4 +145,52 @@ export function getAddTotalDropdownAlignPoints(isLastColumn = false) {
 
 export function shouldShowAddTotalButton(column, isFirstColumn, addingMoreTotalsEnabled) {
     return !isFirstColumn && column.type === 'measure' && addingMoreTotalsEnabled;
+}
+
+export function getFirstMeasureIndex(headers) {
+    const measureOffset = findIndex(headers, header => header.type === 'measure');
+
+    return measureOffset === -1 ? 0 : measureOffset;
+}
+
+export function hasTableColumnTotalEnabled(outputMeasureIndexes, tableColumnIndex, firstMeasureIndex) {
+    const index = tableColumnIndex - firstMeasureIndex;
+
+    return outputMeasureIndexes.includes(index);
+}
+
+export function addMeasureIndex(totals, headers, totalType, tableColumnIndex) {
+    const index = tableColumnIndex - getFirstMeasureIndex(headers);
+
+    return totals.map((total) => {
+        if (total.type !== totalType) {
+            return total;
+        }
+
+        const outputMeasureIndexes = clone(total.outputMeasureIndexes);
+        outputMeasureIndexes.push(index);
+        outputMeasureIndexes.sort();
+
+        return {
+            ...total,
+            outputMeasureIndexes: sortedUniq(outputMeasureIndexes)
+        };
+    });
+}
+
+export function removeMeasureIndex(totals, headers, totalType, tableColumnIndex) {
+    const index = tableColumnIndex - getFirstMeasureIndex(headers);
+
+    return totals.map((total) => {
+        if (total.type !== totalType) {
+            return total;
+        }
+
+        const outputMeasureIndexes = without(total.outputMeasureIndexes, index);
+
+        return {
+            ...total,
+            outputMeasureIndexes
+        };
+    });
 }

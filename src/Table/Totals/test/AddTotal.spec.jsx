@@ -10,7 +10,7 @@ describe('AddTotal', () => {
         const props = {
             dataSource: {},
             header: { type: 'measure' },
-            index: 3,
+            columnIndex: 3,
             headersCount: 5,
             addingMoreTotalsEnabled: true
         };
@@ -35,14 +35,14 @@ describe('AddTotal', () => {
         const componentInstance = component.instance();
         const componentNode = component.childAt(0).instance();
 
-        componentInstance.onOpenStateChanged(true, 3);
+        componentInstance.onOpenStateChanged(3, true);
 
-        expect(onDropdownOpenStateChanged).toBeCalledWith(true, 3);
+        expect(onDropdownOpenStateChanged).toBeCalledWith(3, true);
         expect(componentNode.classList).toContain('dropdown-active');
 
-        componentInstance.onOpenStateChanged(false, 3);
+        componentInstance.onOpenStateChanged(3, false);
 
-        expect(onDropdownOpenStateChanged).toBeCalledWith(false, 3);
+        expect(onDropdownOpenStateChanged).toBeCalledWith(3, false);
         expect(componentNode.classList).not.toContain('dropdown-active');
     });
 
@@ -50,18 +50,18 @@ describe('AddTotal', () => {
         const headerIndex = 2;
         const onWrapperHover = jest.fn();
         const component = renderComponent({
-            index: headerIndex,
+            columnIndex: headerIndex,
             onWrapperHover
         });
 
         component.find('.indigo-totals-add-wrapper').simulate('mouseenter');
 
-        expect(onWrapperHover).toBeCalledWith(true, headerIndex);
+        expect(onWrapperHover).toBeCalledWith(headerIndex, true);
         expect(onWrapperHover.mock.calls.length).toEqual(1);
 
         component.find('.indigo-totals-add-wrapper').simulate('mouseleave');
 
-        expect(onWrapperHover).toBeCalledWith(false, headerIndex);
+        expect(onWrapperHover).toBeCalledWith(headerIndex, false);
         expect(onWrapperHover.mock.calls.length).toEqual(2);
     });
 

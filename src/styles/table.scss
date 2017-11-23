@@ -270,6 +270,24 @@ $gdc-goodstrap-basepath: '~@gooddata/goodstrap/lib/';
         .indigo-totals-add-wrapper {
             height: 28px;
         }
+
+        .indigo-totals-enable-column-button {
+            margin-right: -8px;
+        }
+
+        .indigo-totals-disable-column-button::before,
+        .indigo-totals-enable-column-button::before {
+            display: none;
+            width: 18px;
+            height: 18px;
+            font-size: 15px;
+            line-height: 14px;
+        }
+
+        .indigo-table-footer-cell:hover .indigo-totals-disable-column-button::before,
+        .indigo-table-footer-cell:hover .indigo-totals-enable-column-button::before {
+            display: block;
+        }
     }
 
     .indigo-totals-add-row-button {
@@ -429,31 +447,6 @@ $gdc-goodstrap-basepath: '~@gooddata/goodstrap/lib/';
         &.indigo-totals-remove-row-highlight {
             .indigo-totals-row-remove-button {
                 visibility: visible;
-            }
-
-            &::before {
-                content: '';
-                position: absolute;
-                z-index: 1;
-                top: -1px;
-                right: 0;
-                left: 0;
-                display: block;
-                height: 1px;
-                background: #fff;
-            }
-
-            &::after {
-                content: '';
-                position: absolute;
-                z-index: 2;
-                top: -1px;
-                right: 0;
-                bottom: -1px;
-                left: 0;
-                display: block;
-                border-radius: 4px;
-                border: 2px solid $gd-color-highlight;
             }
         }
 

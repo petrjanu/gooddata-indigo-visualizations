@@ -7,7 +7,6 @@ import {
     getTotalsTypesList,
     getTotalsDatasource,
     getTotalFromListByType,
-    addTotalMeasureIndexes,
     toggleCellClass,
     resetRowClass,
     isAddingMoreTotalsEnabled,
@@ -16,7 +15,7 @@ import {
     addTotalsRow,
     updateTotalsRemovePosition,
     getAddTotalDropdownAlignPoints,
-    shouldShowAddTotalButton
+    shouldShowAddTotalButton, getFirstMeasureIndex, hasTableColumnTotalEnabled, addMeasureIndex, removeMeasureIndex
 } from '../utils';
 
 const intl = createIntlMock();
@@ -74,7 +73,9 @@ describe('Totals', () => {
             const total = getTotalFromListByType('sum', intl);
 
             expect(total).toEqual({
-                alias: 'Sum', type: 'sum'
+                alias: 'Sum',
+                type: 'sum',
+                outputMeasureIndexes: []
             });
         });
 
@@ -82,7 +83,9 @@ describe('Totals', () => {
             const total = getTotalFromListByType('max', intl);
 
             expect(total).toEqual({
-                alias: 'Max', type: 'max'
+                alias: 'Max',
+                type: 'max',
+                outputMeasureIndexes: []
             });
         });
 
@@ -90,28 +93,10 @@ describe('Totals', () => {
             const total = getTotalFromListByType('nat', intl);
 
             expect(total).toEqual({
-                alias: 'Total', type: 'nat'
+                alias: 'Total',
+                type: 'nat',
+                outputMeasureIndexes: []
             });
-        });
-    });
-
-    describe('addTotalMeasureIndexes', () => {
-        it('should add an empty array as `outputMeasureIndexes` property in order to be valid for backend', () => {
-            const totals = [
-                { type: 'sum' },
-                { type: 'avg' }
-            ];
-            const totalsWithEmptyMeasureIndexedArray = addTotalMeasureIndexes(totals);
-
-            expect(totalsWithEmptyMeasureIndexedArray).toEqual([
-                {
-                    type: 'sum',
-                    outputMeasureIndexes: []
-                }, {
-                    type: 'avg',
-                    outputMeasureIndexes: []
-                }
-            ]);
         });
     });
 
@@ -134,7 +119,7 @@ describe('Totals', () => {
             const cell = mount(<CellTestComponent />);
             const cellReference = cell.instance().parentRef;
 
-            toggleCellClass(cellReference, false, 2, testClassname);
+            toggleCellClass(cellReference, 2, false, testClassname);
 
             expect(cellReference.querySelectorAll(`.${testClassname}`).length).toEqual(0);
         });
@@ -143,7 +128,7 @@ describe('Totals', () => {
             const cell = mount(<CellTestComponent />);
             const cellReference = cell.instance().parentRef;
 
-            toggleCellClass(cellReference, true, 2, testClassname);
+            toggleCellClass(cellReference, 2, true, testClassname);
 
             expect(cellReference.querySelectorAll(`.${testClassname}`).length).toEqual(2);
         });
@@ -166,7 +151,7 @@ describe('Totals', () => {
             }
         }
 
-        it('should remove given classname from all rows and set it to one row on a given index', () => {
+        it('should remove given classname from all rows and set it to one row on a given column index', () => {
             const row = mount(<RowTestComponent />);
             const rowReference = row.instance().parentRef;
             const oldIndex = 0;
@@ -179,16 +164,16 @@ describe('Totals', () => {
             expect(rowReference.querySelectorAll('.indigo-totals-remove-row')[newIndex].classList.contains(testClassname)).toEqual(true);
         });
 
-        it('should keep given classname if row on the given index already has one', () => {
+        it('should keep given classname if row on the given column index already has one', () => {
             const row = mount(<RowTestComponent />);
             const rowReference = row.instance().parentRef;
-            const index = 0;
+            const columnIndex = 0;
 
-            expect(rowReference.querySelectorAll('.indigo-totals-remove-row')[index].classList.contains(testClassname)).toEqual(true);
+            expect(rowReference.querySelectorAll('.indigo-totals-remove-row')[columnIndex].classList.contains(testClassname)).toEqual(true);
 
-            resetRowClass(rowReference, testClassname, '.indigo-totals-remove > .indigo-totals-remove-row', index);
+            resetRowClass(rowReference, testClassname, '.indigo-totals-remove > .indigo-totals-remove-row', columnIndex);
 
-            expect(rowReference.querySelectorAll('.indigo-totals-remove-row')[index].classList.contains(testClassname)).toEqual(true);
+            expect(rowReference.querySelectorAll('.indigo-totals-remove-row')[columnIndex].classList.contains(testClassname)).toEqual(true);
         });
     });
 
@@ -251,10 +236,17 @@ describe('Totals', () => {
     describe('addTotalsRow', () => {
         it('should add total among used ones', () => {
             const usedTotals = [
-                { type: 'sum' }
+                {
+                    type: 'sum',
+                    outputMeasureIndexes: []
+                }
             ];
             const totalToAdd = 'avg';
-            const expectedTotals = [...usedTotals, { alias: 'Avg', type: 'avg' }];
+            const expectedTotals = [...usedTotals, {
+                alias: 'Avg',
+                type: 'avg',
+                outputMeasureIndexes: []
+            }];
             expect(addTotalsRow(intl, usedTotals, totalToAdd)).toEqual(expectedTotals);
         });
 
@@ -336,6 +328,105 @@ describe('Totals', () => {
             expect(shouldShowAddTotalButton(metricTypeColumn, isFirstColumn, addingMoreTotalsEnabled)).toEqual(false);
             expect(shouldShowAddTotalButton(metricTypeColumn, !isFirstColumn, !addingMoreTotalsEnabled)).toEqual(false);
             expect(shouldShowAddTotalButton(otherTypeColumn, isFirstColumn, addingMoreTotalsEnabled)).toEqual(false);
+        });
+    });
+
+    describe('getFirstMeasureIndex', () => {
+        it('should return index of first measure when measure present in headers', () => {
+            const headers = [{ type: 'foo' }, { type: 'attribute' }, { type: 'measure' }, { type: 'measure' }];
+            expect(getFirstMeasureIndex(headers)).toBe(2);
+        });
+
+        it('should return index of first measure even when headers are wrongly mixed', () => {
+            const headers = [{ type: 'foo' }, { type: 'measure' }, { type: 'attribute' }, { type: 'measure' }];
+            expect(getFirstMeasureIndex(headers)).toBe(1);
+        });
+
+        it('should return 0 when measure is first header', () => {
+            const headers = [{ type: 'measure' }];
+            expect(getFirstMeasureIndex(headers)).toBe(0);
+        });
+
+        it('should return 0 when no measure present in headers', () => {
+            const headers = [{ type: 'foo' }, { type: 'attribute' }];
+            expect(getFirstMeasureIndex(headers)).toBe(0);
+        });
+    });
+
+    describe('hasTableColumnTotalEnabled', () => {
+        const outputMeasureIndexes = [3];
+        const tableColumnIndex = 4;
+        const measureIndexOffset = 1;
+
+        it('should return true on enabled column', () => {
+            expect(hasTableColumnTotalEnabled(outputMeasureIndexes, tableColumnIndex, measureIndexOffset)).toBeTruthy();
+        });
+
+        it('should return false on disabled column', () => {
+            expect(hasTableColumnTotalEnabled(outputMeasureIndexes, 3, measureIndexOffset)).toBeFalsy();
+        });
+    });
+
+    describe('addMeasureIndex', () => {
+        const totals = [
+            { type: 'sum', outputMeasureIndexes: [] },
+            { type: 'max', outputMeasureIndexes: [1] }
+        ];
+        const headers = [
+            { type: 'attribute' },
+            { type: 'measure' },
+            { type: 'measure' }
+        ];
+        const totalType = 'sum';
+        const tableColumnIndex = 1;
+
+        it('should add measure index in particular total', () => {
+            expect(addMeasureIndex(totals, headers, totalType, tableColumnIndex)).toEqual([
+                { type: 'sum', outputMeasureIndexes: [0] },
+                { type: 'max', outputMeasureIndexes: [1] }
+            ]);
+        });
+
+        it('should not duplicate measure indexes when adding same index again', () => {
+            expect(addMeasureIndex(totals, headers, 'max', 2)).toEqual([
+                { type: 'sum', outputMeasureIndexes: [] },
+                { type: 'max', outputMeasureIndexes: [1] }
+            ]);
+        });
+
+        it('should do nothing when total not found', () => {
+            expect(addMeasureIndex(totals, headers, 'nat', tableColumnIndex)).toEqual([
+                { type: 'sum', outputMeasureIndexes: [] },
+                { type: 'max', outputMeasureIndexes: [1] }
+            ]);
+        });
+    });
+
+    describe('removeMeasureIndex', () => {
+        const totals = [
+            { type: 'sum', outputMeasureIndexes: [] },
+            { type: 'max', outputMeasureIndexes: [1] }
+        ];
+        const headers = [
+            { type: 'attribute' },
+            { type: 'measure' },
+            { type: 'measure' }
+        ];
+        const totalType = 'max';
+        const tableColumnIndex = 2;
+
+        it('should remove measure index in particular total', () => {
+            expect(removeMeasureIndex(totals, headers, totalType, tableColumnIndex)).toEqual([
+                { type: 'sum', outputMeasureIndexes: [] },
+                { type: 'max', outputMeasureIndexes: [] }
+            ]);
+        });
+
+        it('should do nothing when total not found', () => {
+            expect(removeMeasureIndex(totals, headers, 'nat', tableColumnIndex)).toEqual([
+                { type: 'sum', outputMeasureIndexes: [] },
+                { type: 'max', outputMeasureIndexes: [1] }
+            ]);
         });
     });
 });

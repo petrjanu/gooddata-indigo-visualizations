@@ -17,7 +17,6 @@ import { getCellClassNames, getColumnAlign, getStyledLabel } from './utils/cell'
 import { getBackwardCompatibleHeaderForDrilling, getBackwardCompatibleRowForDrilling } from './utils/dataTransformation';
 import { cellClick, isDrillable } from '../utils/drilldownEventing';
 import RemoveRows from './Totals/RemoveRows';
-import AddTotal from './Totals/AddTotal';
 import { getHeaderSortClassName, getNextSortDir } from './utils/sort';
 import { getFooterHeight, getFooterPositions, isFooterAtDefaultPosition, isFooterAtEdgePosition } from './utils/footer';
 import { updatePosition } from './utils/row';
@@ -28,17 +27,16 @@ import {
     getTooltipSortAlignPoints, isHeaderAtDefaultPosition, isHeaderAtEdgePosition
 } from './utils/header';
 import {
-    getTotalsDatasource,
     getOrderedTotalsWithMockedData,
     toggleCellClass,
     resetRowClass,
-    isAddingMoreTotalsEnabled,
     removeTotalsRow,
     addTotalsRow,
     updateTotalsRemovePosition,
-    shouldShowAddTotalButton,
-    addTotalMeasureIndexes
+    addMeasureIndex,
+    removeMeasureIndex, getFirstMeasureIndex
 } from './Totals/utils';
+import TotalCell from './Totals/TotalCells';
 
 const FULLSCREEN_TOOLTIP_VIEWPORT_THRESHOLD = 480;
 const MIN_COLUMN_WIDTH = 100;
@@ -160,6 +158,8 @@ export class TableVisualization extends Component {
         this.toggleBodyColumnHighlight = this.toggleBodyColumnHighlight.bind(this);
         this.toggleFooterColumnHighlight = this.toggleFooterColumnHighlight.bind(this);
         this.resetTotalsRowHighlight = this.resetTotalsRowHighlight.bind(this);
+        this.enableTotalColumn = this.enableTotalColumn.bind(this);
+        this.disableTotalColumn = this.disableTotalColumn.bind(this);
 
         this.scrollingStopped = debounce(() => this.scroll(true), DEBOUNCE_SCROLL_STOP);
 
@@ -328,42 +328,23 @@ export class TableVisualization extends Component {
         }
     }
 
-    addTotalsRow(totalItemType) {
-        const updatedTotals = addTotalsRow(this.props.intl, this.props.totals, totalItemType);
-
-        if (!isEqual(updatedTotals, this.props.totals)) {
-            const totalsWithMeasureIndexes = addTotalMeasureIndexes(updatedTotals);
-            this.props.onTotalsEdit(totalsWithMeasureIndexes);
-        }
-    }
-
-    removeTotalsRow(totalItemType) {
-        const totals = removeTotalsRow(this.props.totals, totalItemType);
-        const totalsWithMeasureIndexes = addTotalMeasureIndexes(totals);
-        this.props.onTotalsEdit(totalsWithMeasureIndexes);
-    }
-
-    isTotalsEditAllowed() {
-        return this.props.totalsEditAllowed;
-    }
-
-    toggleBodyColumnHighlight(isHighlighted, columnIndex) {
+    toggleBodyColumnHighlight(columnIndex, isHighlighted) {
         if (this.addTotalDropdownOpened) {
             return;
         }
-        toggleCellClass(this.table, isHighlighted, columnIndex, 'indigo-table-cell-highlight');
+        toggleCellClass(this.table, columnIndex, isHighlighted, 'indigo-table-cell-highlight');
     }
 
-    toggleFooterColumnHighlight(isHighlighted, columnIndex) {
+    toggleFooterColumnHighlight(columnIndex, isHighlighted) {
         if (this.addTotalDropdownOpened) {
             return;
         }
-        toggleCellClass(this.footer, isHighlighted, columnIndex, 'indigo-table-footer-cell-highlight');
+        toggleCellClass(this.footer, columnIndex, isHighlighted, 'indigo-table-footer-cell-highlight');
     }
 
-    toggleColumnHighlight(isHighlighted, columnIndex) {
-        this.toggleBodyColumnHighlight(isHighlighted, columnIndex);
-        this.toggleFooterColumnHighlight(isHighlighted, columnIndex);
+    toggleColumnHighlight(columnIndex, isHighlighted) {
+        this.toggleBodyColumnHighlight(columnIndex, isHighlighted);
+        this.toggleFooterColumnHighlight(columnIndex, isHighlighted);
     }
 
     resetTotalsRowHighlight(rowIndex) {
@@ -520,6 +501,36 @@ export class TableVisualization extends Component {
         return sortBubble.visible && sortBubble.index === index;
     }
 
+    isTotalsEditAllowed() {
+        return this.props.totalsEditAllowed;
+    }
+
+    addTotalsRow(totalItemType) {
+        const updatedTotals = addTotalsRow(this.props.intl, this.props.totals, totalItemType);
+
+        if (!isEqual(updatedTotals, this.props.totals)) {
+            this.props.onTotalsEdit(updatedTotals);
+        }
+    }
+
+    removeTotalsRow(totalItemType) {
+        const totals = removeTotalsRow(this.props.totals, totalItemType);
+
+        this.props.onTotalsEdit(totals);
+    }
+
+    enableTotalColumn(totalType, columnIndex) {
+        const updatedTotals = addMeasureIndex(this.props.totals, this.props.headers, totalType, columnIndex);
+
+        this.props.onTotalsEdit(updatedTotals);
+    }
+
+    disableTotalColumn(totalType, columnIndex) {
+        const updatedTotals = removeMeasureIndex(this.props.totals, this.props.headers, totalType, columnIndex);
+
+        this.props.onTotalsEdit(updatedTotals);
+    }
+
     renderTooltipHeader(header, index, columnWidth) {
         const headerClasses = getHeaderClassNames(header);
         const bubbleClass = uniqueId('table-header-');
@@ -663,8 +674,8 @@ export class TableVisualization extends Component {
             }) : cellProps;
 
             const cellPropsHover = hoverable ? assign({}, cellPropsDrill, {
-                onMouseEnter: () => this.toggleFooterColumnHighlight(true, index),
-                onMouseLeave: () => this.toggleFooterColumnHighlight(false, index)
+                onMouseEnter: () => this.toggleFooterColumnHighlight(index, true),
+                onMouseLeave: () => this.toggleFooterColumnHighlight(index, false)
             }) : cellPropsDrill;
 
             return (
@@ -675,93 +686,43 @@ export class TableVisualization extends Component {
         };
     }
 
-    renderAddTotalButton(header, index, headersCount) {
-        const { totals, intl } = this.props;
-
-        if (!shouldShowAddTotalButton(header, index === 0, true)) {
-            return null;
-        }
-
-        const dataSource = getTotalsDatasource(totals, intl);
-
-        return (
-            <AddTotal
-                dataSource={dataSource}
-                header={header}
-                index={index}
-                headersCount={headersCount}
-                onDropdownOpenStateChanged={(opened) => {
-                    this.addTotalDropdownOpened = opened;
-                    this.toggleBodyColumnHighlight(opened, index);
-                    this.toggleFooterColumnHighlight(opened, index);
-                }}
-                onWrapperHover={this.toggleFooterColumnHighlight}
-                onButtonHover={(hovered) => {
-                    this.toggleBodyColumnHighlight(hovered, index);
-                    this.toggleFooterColumnHighlight(hovered, index);
-                }}
-                onAddTotalsRow={this.addTotalsRow}
-                addingMoreTotalsEnabled={isAddingMoreTotalsEnabled(totals)}
-            />
-        );
-    }
-
-    renderFooterEditCell(header, index, headersCount) {
-        if (!this.isTotalsEditAllowed()) {
-            return null;
-        }
-
-        const style = { height: TOTALS_ADD_ROW_HEIGHT };
-
-        const className = classNames('indigo-table-footer-cell', `col-${index}`, 'indigo-totals-add-cell');
-
-        return (
-            <div className={className} style={style}>
-                {this.renderAddTotalButton(header, index, headersCount)}
-            </div>
-        );
-    }
-
     renderFooter(header, index, headersCount) {
         if (!this.hasFooter()) {
             return null;
         }
 
-        const { totals } = this.props;
-
-        const totalsWithData = getOrderedTotalsWithMockedData(totals);
-
-        const isFirstColumn = (index === 0);
-
-        const cellContent = totalsWithData.map((total, rowIndex) => {
-            const value = total.values[index] === null ? '' : total.values[index];
-            const className = classNames('indigo-table-footer-cell', `col-${index}`);
-            const { style, label } = getStyledLabel(header, value);
-            const styleWithHeight = Object.assign({}, style, { height: DEFAULT_FOOTER_ROW_HEIGHT });
-            const totalName = total.alias ? total.alias : total.type;
-            const events = this.isTotalsEditAllowed() ? {
-                onMouseEnter: () => {
-                    this.resetTotalsRowHighlight(rowIndex);
-                    this.toggleFooterColumnHighlight(true, index);
-                },
-                onMouseLeave: () => {
-                    this.resetTotalsRowHighlight();
-                    this.toggleFooterColumnHighlight(false, index);
-                }
-            } : {};
-
-            return (
-                <div {...events} key={uniqueId('footer-cell-')} className={className} style={styleWithHeight}>
-                    <span>{isFirstColumn ? totalName : label}</span>
-                </div>
-            );
-        });
-
         return (
-            <Cell>
-                {cellContent}
-                {this.renderFooterEditCell(header, index, headersCount)}
-            </Cell>
+            <TotalCell
+                totals={this.props.totals}
+                columnIndex={index}
+                header={header}
+                headersCount={headersCount}
+                firstMeasureIndex={getFirstMeasureIndex(this.props.headers)}
+                editAllowed={this.isTotalsEditAllowed()}
+                onCellMouseEnter={(rowIndex, columnIndex) => {
+                    this.resetTotalsRowHighlight(rowIndex);
+                    this.toggleFooterColumnHighlight(columnIndex, true);
+                }}
+                onCellMouseLeave={(rowIndex, columnIndex) => {
+                    this.resetTotalsRowHighlight();
+                    this.toggleFooterColumnHighlight(columnIndex, false);
+                }}
+                onEnableColumn={this.enableTotalColumn}
+                onDisableColumn={this.disableTotalColumn}
+                onAddDropdownOpenStateChanged={(columnIndex, isOpened) => {
+                    this.addTotalDropdownOpened = isOpened;
+                    this.toggleBodyColumnHighlight(columnIndex, isOpened);
+                    this.toggleFooterColumnHighlight(columnIndex, isOpened);
+                }}
+                onAddWrapperHover={(columnIndex, isHighlighted) => {
+                    this.toggleFooterColumnHighlight(columnIndex, isHighlighted);
+                }}
+                onAddButtonHover={(columnIndex, isHovered) => {
+                    this.toggleBodyColumnHighlight(columnIndex, isHovered);
+                    this.toggleFooterColumnHighlight(columnIndex, isHovered);
+                }}
+                onRowAdd={this.addTotalsRow}
+            />
         );
     }
 

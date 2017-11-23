@@ -15,7 +15,7 @@ export default class AddTotal extends Component {
     static propTypes = {
         dataSource: PropTypes.object.isRequired,
         header: PropTypes.object.isRequired,
-        index: PropTypes.number.isRequired,
+        columnIndex: PropTypes.number.isRequired,
         headersCount: PropTypes.number.isRequired,
         addingMoreTotalsEnabled: PropTypes.bool.isRequired,
         onDropdownOpenStateChanged: PropTypes.func,
@@ -37,10 +37,10 @@ export default class AddTotal extends Component {
         this.setWrapperRef = this.setWrapperRef.bind(this);
     }
 
-    onOpenStateChanged(opened, index) {
-        this.props.onDropdownOpenStateChanged(opened, index);
+    onOpenStateChanged(columnIndex, isOpened) {
+        this.props.onDropdownOpenStateChanged(columnIndex, isOpened);
 
-        if (opened) {
+        if (isOpened) {
             this.wrapperRef.classList.add('dropdown-active');
         } else {
             this.wrapperRef.classList.remove('dropdown-active');
@@ -55,7 +55,7 @@ export default class AddTotal extends Component {
         const {
             dataSource,
             header,
-            index,
+            columnIndex,
             headersCount,
             onAddTotalsRow,
             onWrapperHover,
@@ -63,8 +63,8 @@ export default class AddTotal extends Component {
             addingMoreTotalsEnabled
         } = this.props;
 
-        const isFirstColumn = (index === 0);
-        const isLastColumn = (index === headersCount - 1);
+        const isFirstColumn = (columnIndex === 0);
+        const isLastColumn = (columnIndex === headersCount - 1);
 
         const showAddTotalButton = shouldShowAddTotalButton(header, isFirstColumn, addingMoreTotalsEnabled);
         const dropdownAlignPoint = getAddTotalDropdownAlignPoints(isLastColumn);
@@ -75,17 +75,17 @@ export default class AddTotal extends Component {
 
         const wrapperEvents = {
             onMouseEnter: () => {
-                onWrapperHover(true, index);
+                onWrapperHover(columnIndex, true);
             },
             onMouseLeave: () => {
-                onWrapperHover(false, index);
+                onWrapperHover(columnIndex, false);
             }
         };
 
         const addButtonProps = {
             hidden: !showAddTotalButton,
             onClick: () => {
-                this.onOpenStateChanged(true, index);
+                this.onOpenStateChanged(columnIndex, true);
             },
             onMouseEnter: () => {
                 onButtonHover(true);
@@ -98,7 +98,7 @@ export default class AddTotal extends Component {
         return (
             <div className="indigo-totals-add-wrapper" {...wrapperEvents} ref={this.setWrapperRef}>
                 <Dropdown
-                    onOpenStateChanged={opened => this.onOpenStateChanged(opened, index)}
+                    onOpenStateChanged={opened => this.onOpenStateChanged(columnIndex, opened)}
                     alignPoints={[dropdownAlignPoint]}
                     button={
                         <TableTotalsAddButton {...addButtonProps} />

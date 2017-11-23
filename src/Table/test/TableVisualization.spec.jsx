@@ -7,9 +7,9 @@ import { withIntl } from '../../test/utils';
 import { ASC, DESC } from '../constants/sort';
 import { EXECUTION_REQUEST_1A_2M, TABLE_HEADERS_1A_2M, TABLE_ROWS_1A_2M } from '../fixtures/1attribute2measures';
 import { EXECUTION_REQUEST_2M, TABLE_HEADERS_2M, TABLE_ROWS_2M } from '../fixtures/2measures';
-import AddTotal from '../Totals/AddTotal';
 import RemoveRows from '../Totals/RemoveRows';
 import { EXECUTION_REQUEST_2A_3M, TABLE_HEADERS_2A_3M, TABLE_ROWS_2A_3M } from '../fixtures/2attributes3measures';
+import { TotalCells } from '../Totals/TotalCells';
 
 function getInstanceFromWrapper(wrapper, component) {
     return wrapper.find(component).childAt(0).instance();
@@ -164,13 +164,16 @@ describe('Table', () => {
         const TOTALS = [
             {
                 type: 'sum',
-                values: [null, null, 125]
+                values: [null, null, 125],
+                outputMeasureIndexes: []
             }, {
                 type: 'avg',
-                values: [null, 45.98, 12.32]
+                values: [null, 45.98, 12.32],
+                outputMeasureIndexes: []
             }, {
                 type: 'nat',
-                values: [null, 12.99, 1.008]
+                values: [null, 12.99, 1.008],
+                outputMeasureIndexes: []
             }
         ];
         const DATA_2A_3M = {
@@ -180,13 +183,22 @@ describe('Table', () => {
         };
 
         describe('totals edit not allowed', () => {
+            it('should render total cells when totals are provided', () => {
+                const wrapper = renderTable({
+                    totals: TOTALS,
+                    ...DATA_2A_3M
+                });
+
+                expect(wrapper.find(TotalCells).length).toEqual(5);
+            });
+
             it('should not render any footer cells when no totals are provided', () => {
                 const wrapper = renderTable(DATA_2A_3M);
 
                 expect(wrapper.find('.indigo-table-footer-cell').length).toEqual(0);
             });
 
-            it('should not render any footer cells when totals are provided but data contains only measures', () => {
+            it('should not render any total cell when totals are provided but data contains only measures', () => {
                 const wrapper = renderTable({
                     totals: TOTALS,
                     headers: TABLE_HEADERS_2M,
@@ -194,10 +206,10 @@ describe('Table', () => {
                     executionRequest: EXECUTION_REQUEST_2M
                 });
 
-                expect(wrapper.find('.indigo-table-footer-cell').length).toEqual(0);
+                expect(wrapper.find(TotalCells).length).toEqual(0);
             });
 
-            it('should not render footer cells when totals are provided but there is only row in data', () => {
+            it('should not render total cell when totals are provided but there is only row in data', () => {
                 const wrapper = renderTable({
                     totals: TOTALS,
                     rows: TABLE_ROWS_1A_2M,
@@ -205,16 +217,7 @@ describe('Table', () => {
                     executionRequest: EXECUTION_REQUEST_1A_2M
                 });
 
-                expect(wrapper.find('.indigo-table-footer-cell').length).toEqual(0);
-            });
-
-            it('should render footer cells when totals are provided', () => {
-                const wrapper = renderTable({
-                    totals: TOTALS,
-                    ...DATA_2A_3M
-                });
-
-                expect(wrapper.find('.indigo-table-footer-cell').length).toEqual(15);
+                expect(wrapper.find(TotalCells).length).toEqual(0);
             });
 
             it('should reset footer when component is updated with no totals', () => {
@@ -253,46 +256,9 @@ describe('Table', () => {
 
                 expect(footer.style.height).toEqual(`${heightAfter}px`);
             });
-
-            it('should not render add total buttons', () => {
-                const wrapper = renderTable({
-                    totalsEditAllowed: false,
-                    ...DATA_2A_3M
-                });
-
-                expect(wrapper.find(AddTotal).length).toEqual(0);
-            });
-
-            it('should not render remove buttons when totals are provided', () => {
-                const wrapper = renderTable({
-                    totals: TOTALS,
-                    totalsEditAllowed: false,
-                    ...DATA_2A_3M
-                });
-
-                expect(wrapper.find(RemoveRows).length).toEqual(0);
-            });
         });
 
         describe('totals edit allowed', () => {
-            it('should render footer cells for add buttons into all columns', () => {
-                const wrapper = renderTable({
-                    totalsEditAllowed: true,
-                    ...DATA_2A_3M
-                });
-
-                expect(wrapper.find('.indigo-table-footer-cell.indigo-totals-add-cell').length).toEqual(5);
-            });
-
-            it('should render add totals buttons into all measure columns except first no matter of type', () => {
-                const wrapper = renderTable({
-                    totalsEditAllowed: true,
-                    ...DATA_2A_3M
-                });
-
-                expect(wrapper.find(AddTotal).length).toEqual(3);
-            });
-
             it('should set editable class name to table', () => {
                 const wrapper = renderTable({
                     totalsEditAllowed: true,
@@ -302,7 +268,7 @@ describe('Table', () => {
                 expect(wrapper.find('.indigo-table-component.has-footer-editable').length).toEqual(1);
             });
 
-            it('should render remove buttons when totals are provided', () => {
+            it('should render remove buttons block when totals are provided', () => {
                 const wrapper = renderTable({
                     totals: TOTALS,
                     totalsEditAllowed: true,
@@ -325,34 +291,11 @@ describe('Table', () => {
 
                 cell.simulate('mouseEnter');
 
-                expect(component.toggleFooterColumnHighlight).toBeCalledWith(true, 2);
+                expect(component.toggleFooterColumnHighlight).toBeCalledWith(2, true);
 
                 cell.simulate('mouseLeave');
 
-                expect(component.toggleFooterColumnHighlight).toBeCalledWith(false, 2);
-            });
-
-            it('should bind mouse events on table footer cells', () => {
-                const wrapper = renderTable({
-                    totals: TOTALS,
-                    totalsEditAllowed: true,
-                    ...DATA_2A_3M
-                });
-                const component = wrapper.find(TableVisualization).childAt(0).instance();
-                const cell = wrapper.find('.indigo-table-footer-cell.col-2').at(0);
-
-                component.resetTotalsRowHighlight = jest.fn();
-                component.toggleFooterColumnHighlight = jest.fn();
-
-                cell.simulate('mouseEnter');
-
-                expect(component.resetTotalsRowHighlight).toBeCalledWith(0);
-                expect(component.toggleFooterColumnHighlight).toBeCalledWith(true, 2);
-
-                cell.simulate('mouseLeave');
-
-                expect(component.resetTotalsRowHighlight).toBeCalled();
-                expect(component.toggleFooterColumnHighlight).toBeCalledWith(false, 2);
+                expect(component.toggleFooterColumnHighlight).toBeCalledWith(2, false);
             });
         });
     });
