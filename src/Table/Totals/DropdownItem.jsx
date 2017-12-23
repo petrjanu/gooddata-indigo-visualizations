@@ -1,8 +1,9 @@
-import React, { Component, PropTypes } from 'react';
+import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 import { injectIntl, FormattedMessage, intlShape } from 'react-intl';
 import cx from 'classnames';
 
-export class DropdownItem extends Component {
+export class DropdownItem extends PureComponent {
     static propTypes = {
         intl: intlShape.isRequired,
         item: PropTypes.object.isRequired,

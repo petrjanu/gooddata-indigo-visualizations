@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 import cx from 'classnames';
 
-const { Component, PropTypes } = React;
-
-export default class AddTotalButton extends Component {
+export default class AddTotalButton extends PureComponent {
     static propTypes = {
         onClick: PropTypes.func,
         onMouseEnter: PropTypes.func,
