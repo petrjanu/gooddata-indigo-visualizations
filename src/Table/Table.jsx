@@ -18,7 +18,7 @@ export default class Table extends PureComponent {
     render() {
         const { containerHeight, containerWidth } = this.props;
         return (
-            <Measure>
+            <Measure margin={false}>
                 {dimensions => (
                     <div className="viz-table-wrap" style={{ height: '100%', width: '100%' }}>
                         <TableVisualization
