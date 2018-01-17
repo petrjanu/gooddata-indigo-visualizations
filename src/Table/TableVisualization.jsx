@@ -749,6 +749,8 @@ export class TableVisualization extends Component {
     }
 
     renderTotalsRemove() {
+        return null; // TODO PJA
+
         if (!this.isTotalsEditAllowed()) {
             return false;
         }
