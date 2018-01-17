@@ -87,6 +87,8 @@ export class TotalCell extends Component {
     }
 
     renderEditCell(header, columnIndex, headersCount) {
+        return null; // TODO PJA
+
         if (!this.props.editAllowed) {
             return null;
         }
