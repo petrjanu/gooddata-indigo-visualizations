@@ -117,29 +117,12 @@ export class TotalCell extends Component {
             if (columnHasTotal) {
                 return (
                     <span>
-                        <span
-                            className={cx('button-link', 'button-icon-only', 'icon-circle-cross',
-                                'indigo-totals-disable-column-button', `s-disable-total-column-${total.type}-${columnIndex}`
-                            )}
-                            onClick={() => {
-                                this.props.onDisableColumn(columnIndex, total.type);
-                            }}
-                        />
                         {labelElement}
                     </span>
                 );
             }
 
-            return (
-                <span
-                    className={cx('button-link', 'button-icon-only', 'icon-circle-plus',
-                        'indigo-totals-enable-column-button', `s-enable-total-column-${total.type}-${columnIndex}`
-                    )}
-                    onClick={() => {
-                        this.props.onEnableColumn(columnIndex, total.type);
-                    }}
-                />
-            );
+            return null;
         }
 
         if (!editAllowed && columnHasTotal) {
