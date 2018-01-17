@@ -753,7 +753,7 @@ export class TableVisualization extends Component {
             return false;
         }
 
-        return (
+        return ( // TODO try to remove
             <RemoveRows
                 totalsWithData={this.props.totalsWithData}
                 onRemove={this.removeTotalsRow}

@@ -61,7 +61,7 @@ export class TotalCell extends Component {
 
         const dataSource = getTotalsDatasource(totalsWithData, intl);
 
-        return (
+        return ( // TODO try to remove
             <AddTotal
                 dataSource={dataSource}
                 header={header}

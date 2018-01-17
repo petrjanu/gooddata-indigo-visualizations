@@ -232,7 +232,7 @@ storiesOf('Table', module)
                     executionResult={EXECUTION_RESULT_2A_3M}
                     height={400}
                     onSortChange={action('Sort changed')}
-                    totalsEditAllowed
+                    totalsEditAllowed={false} // TODO remove ={false}
                     totals={totals}
                     onTotalsEdit={(updateTotals) => {
                         action('Totals updated')(updateTotals);
