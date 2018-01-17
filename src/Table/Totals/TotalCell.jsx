@@ -105,7 +105,8 @@ export class TotalCell extends Component {
     }
 
     renderMeasureCellContent(label, total, header, columnIndex) {
-        const { firstMeasureIndex, editAllowed } = this.props;
+        const { firstMeasureIndex } = this.props;
+        const editAllowed = false;
 
         if (header.type !== 'measure') {
             return null;
