@@ -53,6 +53,8 @@ export class TotalCell extends Component {
 
 
     renderAddTotalButton(header, columnIndex, headersCount) {
+        return null; // TODO PJA
+
         const { totalsWithData, intl } = this.props;
 
         if (!shouldShowAddTotalButton(header, columnIndex === 0, true)) {
@@ -61,7 +63,7 @@ export class TotalCell extends Component {
 
         const dataSource = getTotalsDatasource(totalsWithData, intl);
 
-        return ( // TODO try to remove
+        return (
             <AddTotal
                 dataSource={dataSource}
                 header={header}
