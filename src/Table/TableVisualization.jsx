@@ -749,13 +749,11 @@ export class TableVisualization extends Component {
     }
 
     renderTotalsRemove() {
-        return null; // TODO PJA
-
         if (!this.isTotalsEditAllowed()) {
             return false;
         }
 
-        return ( // TODO try to remove
+        return (
             <RemoveRows
                 totalsWithData={this.props.totalsWithData}
                 onRemove={this.removeTotalsRow}

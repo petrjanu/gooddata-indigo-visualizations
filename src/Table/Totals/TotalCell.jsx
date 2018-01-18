@@ -53,8 +53,6 @@ export class TotalCell extends Component {
 
 
     renderAddTotalButton(header, columnIndex, headersCount) {
-        return null; // TODO PJA
-
         const { totalsWithData, intl } = this.props;
 
         if (!shouldShowAddTotalButton(header, columnIndex === 0, true)) {
@@ -87,8 +85,6 @@ export class TotalCell extends Component {
     }
 
     renderEditCell(header, columnIndex, headersCount) {
-        return null; // TODO PJA
-
         if (!this.props.editAllowed) {
             return null;
         }
@@ -105,8 +101,7 @@ export class TotalCell extends Component {
     }
 
     renderMeasureCellContent(label, total, header, columnIndex) {
-        const { firstMeasureIndex } = this.props;
-        const editAllowed = false;
+        const { firstMeasureIndex, editAllowed } = this.props;
 
         if (header.type !== 'measure') {
             return null;
@@ -122,6 +117,14 @@ export class TotalCell extends Component {
             if (columnHasTotal) {
                 return (
                     <span>
+                        <span
+                            className={cx('button-link', 'button-icon-only', 'icon-circle-cross',
+                                'indigo-totals-disable-column-button', `s-disable-total-column-${total.type}-${columnIndex}`
+                            )}
+                            onClick={() => {
+                                this.props.onDisableColumn(columnIndex, total.type);
+                            }}
+                        />
                         {labelElement}
                     </span>
                 );
@@ -134,7 +137,16 @@ export class TotalCell extends Component {
             return labelElement;
         }
 
-        return null;
+        return (
+            <span
+                className={cx('button-link', 'button-icon-only', 'icon-circle-plus',
+                    'indigo-totals-enable-column-button', `s-enable-total-column-${total.type}-${columnIndex}`
+                )}
+                onClick={() => {
+                    this.props.onEnableColumn(columnIndex, total.type);
+                }}
+            />
+        );
     }
 
     renderCellContent(isFirstColumn, isMeasureColumn, columnIndex, measureColumnIndex, total, header) {
