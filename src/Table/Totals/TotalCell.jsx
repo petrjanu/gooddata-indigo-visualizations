@@ -130,23 +130,23 @@ export class TotalCell extends Component {
                 );
             }
 
-            return null;
+            return (
+                <span
+                    className={cx('button-link', 'button-icon-only', 'icon-circle-plus',
+                        'indigo-totals-enable-column-button', `s-enable-total-column-${total.type}-${columnIndex}`
+                    )}
+                    onClick={() => {
+                        this.props.onEnableColumn(columnIndex, total.type);
+                    }}
+                />
+            );
         }
 
         if (!editAllowed && columnHasTotal) {
             return labelElement;
         }
 
-        return (
-            <span
-                className={cx('button-link', 'button-icon-only', 'icon-circle-plus',
-                    'indigo-totals-enable-column-button', `s-enable-total-column-${total.type}-${columnIndex}`
-                )}
-                onClick={() => {
-                    this.props.onEnableColumn(columnIndex, total.type);
-                }}
-            />
-        );
+        return null;
     }
 
     renderCellContent(isFirstColumn, isMeasureColumn, columnIndex, measureColumnIndex, total, header) {
