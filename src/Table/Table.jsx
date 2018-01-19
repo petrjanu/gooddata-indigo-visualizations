@@ -20,7 +20,7 @@ export default class Table extends PureComponent {
         return (
             <Measure>
                 {dimensions => (
-                    <div className="viz-table-wrap" style={{ height: '100%', width: '100%' }}>
+                    <div className="viz-table-wrap" style={{ height: '100%', width: '100%', position: 'relative' }}>
                         <TableVisualization
                             {...this.props}
                             containerHeight={containerHeight || dimensions.height}
