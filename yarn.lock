@@ -68,11 +68,11 @@
     lodash "^4.2.0"
     to-fast-properties "^2.0.0"
 
-"@gooddata/goodstrap@55.0.0-alpha4":
-  version "55.0.0-alpha4"
-  resolved "https://registry.yarnpkg.com/@gooddata/goodstrap/-/goodstrap-55.0.0-alpha4.tgz#8ecff67043cb83ce3946a3b6783f3abd294fbd89"
+"@gooddata/goodstrap@55.0.0-alpha6":
+  version "55.0.0-alpha6"
+  resolved "https://registry.yarnpkg.com/@gooddata/goodstrap/-/goodstrap-55.0.0-alpha6.tgz#f21c6441e0a35c9ae98d450fc81044d867dbf4f7"
   dependencies:
-    "@gooddata/js-utils" "0.7.1"
+    "@gooddata/js-utils" "^2.0.0"
     classnames "2.2.5"
     custom-event "1.0.1"
     fixed-data-table-2 "0.7.17"
@@ -96,14 +96,12 @@
     react-transition-group "1.2.1"
     rxjs "5.4.3"
 
-"@gooddata/js-utils@0.7.1":
-  version "0.7.1"
-  resolved "https://registry.yarnpkg.com/@gooddata/js-utils/-/js-utils-0.7.1.tgz#5b382dbf37b61b387951b8e58e8580f9f75a28ee"
+"@gooddata/js-utils@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@gooddata/js-utils/-/js-utils-2.0.0.tgz#357d795cf5c7a7b58ecb14bd04189338a428559c"
   dependencies:
-    js-cookie "2.1.4"
-    lodash "4.17.4"
-    moment "2.17.1"
-    moment-timezone "0.5.11"
+    js-cookie "^2.1.4"
+    lodash "^4.17.4"
 
 "@gooddata/numberjs@3.0.0":
   version "3.0.0"
@@ -5611,9 +5609,9 @@ js-base64@^2.1.8, js-base64@^2.1.9:
   version "2.4.3"
   resolved "https://registry.yarnpkg.com/js-base64/-/js-base64-2.4.3.tgz#2e545ec2b0f2957f41356510205214e98fad6582"
 
-js-cookie@2.1.4:
-  version "2.1.4"
-  resolved "https://registry.yarnpkg.com/js-cookie/-/js-cookie-2.1.4.tgz#da4ec503866f149d164cf25f579ef31015025d8d"
+js-cookie@^2.1.4:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/js-cookie/-/js-cookie-2.2.0.tgz#1b2c279a6eece380a12168b92485265b35b1effb"
 
 js-tokens@^3.0.0, js-tokens@^3.0.2:
   version "3.0.2"
@@ -6329,10 +6327,6 @@ moment-timezone@0.5.11:
   resolved "https://registry.yarnpkg.com/moment-timezone/-/moment-timezone-0.5.11.tgz#9b76c03d8ef514c7e4249a7bbce649eed39ef29f"
   dependencies:
     moment ">= 2.6.0"
-
-moment@2.17.1:
-  version "2.17.1"
-  resolved "https://registry.yarnpkg.com/moment/-/moment-2.17.1.tgz#fed9506063f36b10f066c8b59a144d7faebe1d82"
 
 moment@2.18.1:
   version "2.18.1"
