@@ -5,7 +5,6 @@ import invariant from 'invariant';
 import { isEqual, isFunction, omitBy } from 'lodash';
 import Highcharts from 'highcharts';
 
-import ChartTransformation from './chart/ChartTransformation';
 import TableTransformation from './table/TableTransformation';
 
 import {
@@ -66,9 +65,8 @@ export default class Visualization extends Component {
         }
 
         if (isChartSupported(visType)) {
-            return (
-                <ChartTransformation {...this.props} />
-            );
+            invariant(false, 'Charts are moved to @gooddata/react-components');
+            return false;
         }
 
         return invariant(isChartSupported(visType), `Unknown visualization type: ${visType}. Supported visualization types: ${stringifyChartTypes()}`);
