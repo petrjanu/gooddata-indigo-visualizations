@@ -1,7 +1,6 @@
 // (C) 2007-2018 GoodData Corporation
 import Visualization from './Visualization';
 
-import ChartTransformation from './chart/ChartTransformation';
 import TableTransformation from './table/TableTransformation';
 import HeadlineTransformation from './headline/HeadlineTransformation';
 
@@ -22,7 +21,6 @@ export {
     Visualization,
 
     HeadlineTransformation,
-    ChartTransformation,
     TableTransformation,
 
     ResponsiveTable,
